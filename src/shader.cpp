@@ -1,4 +1,4 @@
-#include "../common/shader.h"
+#include "../include/shader.h"
 
 ShaderProgram::ShaderProgram() {}
 
@@ -37,8 +37,8 @@ uint ShaderProgram::compileFragmentShader(bool &success) {
   success = true;
   return fragmentShader;
 }
-int ShaderProgram::loc(const char* name) {
-  return glGetUniformLocation(id(), name);
+int ShaderProgram::loc(string name) {
+  return glGetUniformLocation(id(), name.c_str());
 }
 
 void ShaderProgram::vertexFromFile(const char* vertexFile) {
@@ -92,18 +92,18 @@ void ShaderProgram::use() {
   glUseProgram(id());
 }
 
-void ShaderProgram::setUniform(const char* name, float x) {
+void ShaderProgram::setUniform(string name, float x) {
   glUniform1f(loc(name), x);
 }
-void ShaderProgram::setUniform(const char* name, vec4 v) {
+void ShaderProgram::setUniform(string name, vec4 v) {
   glUniform4f(loc(name), v.x, v.y, v.z, v.w);
 }
-void ShaderProgram::setUniform(const char* name, vec3 v) {
+void ShaderProgram::setUniform(string name, vec3 v) {
   glUniform3f(loc(name), v.x, v.y, v.z);
 }
-void ShaderProgram::setUniform(const char* name, vec2 v) {
+void ShaderProgram::setUniform(string name, vec2 v) {
   glUniform2f(loc(name), v.x, v.y);
 }
-void ShaderProgram::setUniform(const char* name, mat4 v) {
+void ShaderProgram::setUniform(string name, mat4 v) {
   glUniformMatrix4fv(loc(name), 1, GL_FALSE, value_ptr(v));
 }

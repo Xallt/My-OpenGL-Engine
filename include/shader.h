@@ -14,7 +14,7 @@ using namespace glm;
 using namespace std;
 
 class ShaderProgram {
-private:
+protected:
   string readFile(const char* filename);
   char errorLog[512];
   int _success;
@@ -23,7 +23,7 @@ private:
   uint shaderProgram;
   uint compileVertexShader(bool &success);
   uint compileFragmentShader(bool &success);
-  int loc(const char* name);
+  int loc(string name);
 public:
   ShaderProgram();
 
@@ -38,11 +38,11 @@ public:
   uint id();
   void use();
 
-  void setUniform(const char* name, float x);
-  void setUniform(const char* name, vec4 v);
-  void setUniform(const char* name, vec3 v);
-  void setUniform(const char* name, vec2 v);
-  void setUniform(const char* name, mat4 v);
+  void setUniform(string name, float x);
+  void setUniform(string name, vec4 v);
+  void setUniform(string name, vec3 v);
+  void setUniform(string name, vec2 v);
+  void setUniform(string name, mat4 v);
 };
 
 #endif

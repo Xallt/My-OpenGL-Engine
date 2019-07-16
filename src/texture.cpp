@@ -1,4 +1,4 @@
-#include "../common/texture.h"
+#include "../include/texture.h"
 
 Texture2D::Texture2D(const char* textureFile) {
   glGenTextures(1, &texture);

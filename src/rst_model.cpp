@@ -1,9 +1,4 @@
-#include "../common/model.h"
-
-void OpenglObject::init() {}
-void OpenglObject::render(Camera camera) {}
-void OpenglObject::update(double delta) {}
-void OpenglObject::free() {}
+#include "../include/rasterizing/rst_model.h"
 
 SingleModel::SingleModel(int vertexCount, int verticesSize, float* vertices, int indicesSize, int* indices, ShaderProgram &shader, Texture2D tex):
   vertexCount(vertexCount), verticesSize(verticesSize), vertices(vertices), indicesSize(indicesSize), indices(indices), shader(shader), tex(tex) {}

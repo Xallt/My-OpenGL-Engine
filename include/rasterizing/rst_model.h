@@ -1,24 +1,10 @@
-#ifndef __COMMON_MODEL__
-#define __COMMON_MODEL__
+#ifndef COMMON_RATERIZING_MODEL
+#define COMMON_RATERIZING_MODEL
 
-#include <GL/glew.h>
-
-#include <vector>
-
-#include "camera.h"
-#include "shader.h"
-#include "texture.h"
+#include <glm/glm.hpp>
+#include "../object.h"
 
 using namespace glm;
-
-class OpenglObject {
-public:
-  std::vector<OpenglObject> children;
-  virtual void init();
-  virtual void render(Camera camera);
-  virtual void update(double delta);
-  virtual void free();
-};
 
 class SingleModel : OpenglObject {
 private:

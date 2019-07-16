@@ -2,18 +2,25 @@
 #define COMMON_RAYMARCHING_SCENE
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 #include <iostream>
 
-#include "../camera.h"
-#include "../shader.h"
+using namespace glm;
 
-class RaymarchingScene {
+#include "../camera.h"
+#include "rm_shader.h"
+#include "../object.h"
+
+class RaymarchingScene: public OpenglObject {
 private:
   uint VBO, VAO;
-  ShaderProgram *shader;
+  RaymarchingShader* shader;
 public:
   RaymarchingScene();
+  void init();
+  void update(float delta);
   void render(Camera &camera);
+  void free();
 };
 
 #endif

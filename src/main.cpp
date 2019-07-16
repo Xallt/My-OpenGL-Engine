@@ -10,12 +10,12 @@
 
 #include <cstring>
 
-#include "../common/shader.h"
-#include "../common/texture.h"
-#include "../common/camera.h"
-#include "../common/window.h"
-#include "../common/model.h"
-#include "../common/raymarching/scene.h"
+#include "../include/shader.h"
+#include "../include/texture.h"
+#include "../include/camera.h"
+#include "../include/window.h"
+#include "../include/object.h"
+#include "../include/raymarching/rm_scene.h"
 // This way it's more convenient
 #define int GLint
 #define float GLfloat
@@ -95,6 +95,7 @@ void mainCycle(Window &window) {
   };
 
   RaymarchingScene rs;
+  rs.init();
 
   g_camera = new Camera(glm::radians(45.0), window.aspect());
   g_camera->transform(glm::translate(glm::vec3(0.0, 0.0, 3.0)));
@@ -106,8 +107,7 @@ void mainCycle(Window &window) {
   while (!window.shouldClose()) {
     glfwPollEvents();
     controller.update(g_delta);
-
-    glClearColor(0.2, 0.3, 0.3, 1.0);
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     rs.render(*g_camera);
@@ -118,6 +118,7 @@ void mainCycle(Window &window) {
     g_time = glfwGetTime();
   }
 
+  rs.free();
   glfwTerminate();
 }
 

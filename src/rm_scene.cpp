@@ -1,6 +1,8 @@
-#include "../common/raymarching/scene.h"
+#include "../include/raymarching/rm_scene.h"
 
-RaymarchingScene::RaymarchingScene() {
+RaymarchingScene::RaymarchingScene() {}
+
+void RaymarchingScene::init() {
   float vertices[] = {
     -1.0, -1.0,
     1.0, -1.0,
@@ -23,7 +25,7 @@ RaymarchingScene::RaymarchingScene() {
 
   glBindVertexArray(0);
 
-  shader = new ShaderProgram();
+  shader = new RaymarchingShader();
   shader->vertexFromFile("shaders/raymarching/vert.glsl");
   shader->fragmentFromFile("shaders/raymarching/frag.glsl");
   bool s;
@@ -37,9 +39,27 @@ void RaymarchingScene::render(Camera &camera) {
   shader->setUniform("camera.position", camera.position());
   shader->setUniform("Time", glfwGetTime());
   
+  DirectionalLight l = {
+    vec3(-2.0),
+    vec3(1.0),
+    1.0
+  };
+  Material m = {
+    vec3(0.0, 0.3, 1.0),
+    0.8, 0.3, 0.5,
+    100.0
+  };
+  shader->setUniformStruct("light", l);
+  shader->setUniformStruct("mat", m);
+
   glBindVertexArray(VAO);
 
   glDrawArrays(GL_TRIANGLES, 0, 6);
 
   glBindVertexArray(0);
+}
+void RaymarchingScene::update(float delta) {}
+void RaymarchingScene::free() {
+  glDeleteBuffers(1, &VBO);
+  glDeleteVertexArrays(1, &VAO);
 }

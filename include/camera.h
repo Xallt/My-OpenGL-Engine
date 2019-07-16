@@ -1,5 +1,5 @@
-#ifndef __COMMON_CAMERA__
-#define __COMMON_CAMERA__
+#ifndef COMMON_CAMERA
+#define COMMON_CAMERA
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -48,7 +48,7 @@ private:
   void keyMovement(double delta);
   void mouseMovement(double delta);
 public:
-  double speed = 0.5;
+  double speed = 1;
   CameraController(Camera *camera, Window* window);
   void update(double delta);
 };
