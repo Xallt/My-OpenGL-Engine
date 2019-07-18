@@ -19,7 +19,7 @@ struct Sphere {
 #define SPHERES 1
 Sphere getSphere(int index) {
   Sphere s;
-  s.position = vec3(0, 2, 0);
+  s.position = vec3(0, 1, 0);
   s.radius = 1;
   s.shininess = 20;
   return s;
@@ -71,11 +71,21 @@ RayHit castRay(Ray ray) {
   return hit;
 }
 
+vec3 shadeRay(vec3 ro, vec3 rd) {
+  Ray ray;
+  ray.origin = ro;
+  ray.direction = normalize(rd);
+  RayHit hit = castRay(ray);
+  if (hit.type == 2) {
+    float size = 3;
+    bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
+    float k = float(x ^^ z);
+    return vec3(k * .6 + .4);
+  }
+  return hit.normal;
+}
+
 void main()
 {
-  Ray ray;
-  ray.origin = camera.position;
-  ray.direction = normalize(RayDirection);
-  RayHit hit = castRay(ray);
-  color = vec4(hit.normal, 1);
+  color = vec4(shadeRay(camera.position, RayDirection), 1);
 }
