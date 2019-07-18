@@ -152,7 +152,7 @@ struct RayHit {
 };
 
 DE DistanceField(vec3 p) {
-	DE obj = deMenger(p);
+	DE obj = diSierpinski(p);
 	return opUnion(obj, to_DE(p.y + 2));
 }
 

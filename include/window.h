@@ -29,6 +29,7 @@ public:
   bool shouldClose();
   void swapBuffers();
   bool isKeyPressed(int key);
+  bool isMouseButtonPressed(int button);
   vec2 getMousePosition();
 };
 

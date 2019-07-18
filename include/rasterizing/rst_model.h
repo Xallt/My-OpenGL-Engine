@@ -3,26 +3,32 @@
 
 #include <glm/glm.hpp>
 #include "../object.h"
+#include "../shader.h"
+#include "../texture.h"
 
 using namespace glm;
 
-class SingleModel : OpenglObject {
+class Model : public Object {
 private:
-  uint VAO, VBO, EBO;
-  int vertexCount;
-  int verticesSize, indicesSize;
-  float* vertices;
-  int* indices;
-  ShaderProgram shader;
-  Texture2D tex;
+  uint VAO, VBO;
+  vector<vec3> position;
+  vector<vec2> texCoord;
+  float* verticesData;
+  ShaderProgram* shader;
+  Texture2D* tex;
+
+  void computeData();
 public:
   mat4 _transform = mat4(1.0);
-  SingleModel(int vertexCount, int verticesSize, float* vertices, int indicesSize, int* indices, ShaderProgram &shader, Texture2D tex);
-  SingleModel(int vertexCount, int verticesSize, float* vertices, ShaderProgram &shader, Texture2D tex);
+  Model(int vertexCount, float* vertices, ShaderProgram* shader, Texture2D* tex);
+  void update(float delta);
   void init();
-  void enableAttribute(int location, int size, GLenum type, int offset);
-  void render(Camera* camera);
+  void render(Camera& camera);
   void free();
+
+  void enableAttribute(int location, int size, GLenum type, int offset);
+  int vertexCount();
+
   mat4 transform();
   mat4 transform(mat4 t);
 };

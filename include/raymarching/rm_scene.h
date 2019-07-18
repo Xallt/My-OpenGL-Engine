@@ -11,7 +11,7 @@ using namespace glm;
 #include "rm_shader.h"
 #include "../object.h"
 
-class RaymarchingScene: public OpenglObject {
+class RaymarchingScene: public Object {
 private:
   uint VBO, VAO;
   RaymarchingShader* shader;

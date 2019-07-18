@@ -1,6 +1,6 @@
 #include "../include/object.h"
 
-void OpenglObject::init() {}
-void OpenglObject::render(Camera camera) {}
-void OpenglObject::update(double delta) {}
-void OpenglObject::free() {}
+void Object::init() {}
+void Object::render(Camera& camera) {}
+void Object::update(float delta) {}
+void Object::free() {}

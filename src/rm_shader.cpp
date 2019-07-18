@@ -2,14 +2,6 @@
 
 RaymarchingShader::RaymarchingShader() {}
 
-void RaymarchingShader::fragmentFromFile(const char* fragmentFile) {
-  this->fragmentString = readFile(fragmentFile);
-  this->processFragmentShader();
-  this->fragmentPointer = this->fragmentString.c_str();
-}
-void RaymarchingShader::processFragmentShader() {
-
-}
 void RaymarchingShader::setUniformStruct(string name, DirectionalLight l) {
   setUniform(name + ".direction", l.direction);
   setUniform(name + ".color", l.color);

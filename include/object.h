@@ -6,17 +6,15 @@
 #include <vector>
 
 #include "camera.h"
-#include "shader.h"
-#include "texture.h"
 
 using namespace glm;
 
-class OpenglObject {
+class Object {
 public:
-  std::vector<OpenglObject> children;
+  std::vector<Object> children;
   virtual void init();
-  virtual void render(Camera camera);
-  virtual void update(double delta);
+  virtual void render(Camera& camera);
+  virtual void update(float delta);
   virtual void free();
 };
 

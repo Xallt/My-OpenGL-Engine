@@ -60,6 +60,7 @@ void ShaderProgram::fragmentFromString(string fragmentString) {
 }
 
 void ShaderProgram::compile(bool &success) {
+  // cout << vertexString << '\n' << fragmentString << '\n';
   int vertexShader = compileVertexShader(success);
   if (!success) {
     return;

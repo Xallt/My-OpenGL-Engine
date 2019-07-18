@@ -62,6 +62,9 @@ void Window::swapBuffers() {
 bool Window::isKeyPressed(int key) {
   return glfwGetKey(window, key) == GLFW_PRESS;
 }
+bool Window::isMouseButtonPressed(int button) {
+  return glfwGetMouseButton(window, button) == GLFW_PRESS;
+}
 vec2 Window::getMousePosition() {
   double x, y;
   glfwGetCursorPos(window, &x, &y);

@@ -3,19 +3,16 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <SOIL/SOIL.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <cstring>
-
-#include "../include/shader.h"
-#include "../include/texture.h"
 #include "../include/camera.h"
 #include "../include/window.h"
-#include "../include/object.h"
+#include "../include/rasterizing/rst_scene.h"
 #include "../include/raymarching/rm_scene.h"
+#include "../include/raytracing/rt_scene.h"
+
 // This way it's more convenient
 #define int GLint
 #define float GLfloat
@@ -36,81 +33,23 @@ void setCallbacks(Window &window) {
 }
 
 void mainCycle(Window &window) {
-  // Triangle
-  float cubeVertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-  };
-  
-  glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f),
-    glm::vec3( 2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3( 2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3( 1.3f, -2.0f, -2.5f),
-    glm::vec3( 1.5f,  2.0f, -2.5f),
-    glm::vec3( 1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-  };
-
-  RaymarchingScene rs;
-  rs.init();
-
   g_camera = new Camera(glm::radians(45.0), window.aspect());
-  g_camera->transform(glm::translate(glm::vec3(0.0, 0.0, 3.0)));
+  g_camera->transform(glm::translate(glm::vec3(0.0, 1.0, 3.0)));
   CameraController controller(g_camera, &window);
+
+  Object* obj = new RaytracingScene();
+  obj->init();
 
   g_time = glfwGetTime();
   g_delta = 0;
-
   while (!window.shouldClose()) {
     glfwPollEvents();
     controller.update(g_delta);
+    obj->update(g_delta);
     
+    glClearColor(0.1484375, 0.203125, 0.52734375, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    rs.render(*g_camera);
+    obj->render(*g_camera);
 
     window.swapBuffers();
 
@@ -118,7 +57,7 @@ void mainCycle(Window &window) {
     g_time = glfwGetTime();
   }
 
-  rs.free();
+  obj->free();
   glfwTerminate();
 }
 

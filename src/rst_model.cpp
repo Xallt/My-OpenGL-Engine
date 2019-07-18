@@ -1,59 +1,67 @@
 #include "../include/rasterizing/rst_model.h"
 
-SingleModel::SingleModel(int vertexCount, int verticesSize, float* vertices, int indicesSize, int* indices, ShaderProgram &shader, Texture2D tex):
-  vertexCount(vertexCount), verticesSize(verticesSize), vertices(vertices), indicesSize(indicesSize), indices(indices), shader(shader), tex(tex) {}
-SingleModel::SingleModel(int vertexCount, int verticesSize, float* vertices, ShaderProgram &shader, Texture2D tex):
-  vertexCount(vertexCount), verticesSize(verticesSize), vertices(vertices), shader(shader), tex(tex) {
-  indicesSize = vertexCount;
-  indices = new int[indicesSize];
-  for (int i = 0; i < indicesSize; ++i) {
-    indices[i] = i;
+Model::Model(int vertexCount, float* vertices, ShaderProgram* shader, Texture2D* tex):
+  shader(shader), tex(tex) {
+  position.clear();
+  texCoord.clear();
+  for (int i = 0; i < vertexCount; ++i) {
+    position.push_back(vec3(vertices[i * 5], vertices[i * 5 + 1], vertices[i * 5 + 2]));
+    texCoord.push_back(vec2(vertices[i * 5 + 3], vertices[i * 5 + 4]));
+  }
+  computeData();
+}
+void Model::computeData() {
+  verticesData = new float[vertexCount() * 5];
+  for (int i = 0; i < vertexCount(); ++i) {
+    verticesData[i * 5] = position[i].x, verticesData[i * 5 + 1] = position[i].y, verticesData[i * 5 + 2] = position[i].z;
+    verticesData[i * 5 + 3] = texCoord[i].x, verticesData[i * 5 + 4] = texCoord[i].y;
   }
 }
-void SingleModel::init() {
+
+void Model::update(float delta) {}
+void Model::init() {
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
   glGenVertexArrays(1, &VAO);
 
   glBindVertexArray(VAO);
-
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, verticesSize * sizeof(float), vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexCount() * 5 * sizeof(float), verticesData, GL_STATIC_DRAW);
+  glBindVertexArray(0);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * sizeof(int), indices, GL_STATIC_DRAW);
-
+  enableAttribute(0, 3, GL_FLOAT, 0);
+  enableAttribute(1, 2, GL_FLOAT, 3);
+}
+void Model::render(Camera& camera) {
+  tex->bind();
+  shader->use();
+  shader->setUniform("projection", camera.projection());
+  shader->setUniform("view", camera.view());
+  shader->setUniform("model", _transform);
+  glBindVertexArray(VAO);
+  glDrawArrays(GL_TRIANGLES, 0, vertexCount() * 5);
   glBindVertexArray(0);
 }
-void SingleModel::enableAttribute(int location, int size, GLenum type, int offset) {
+void Model::free() {
+  glDeleteBuffers(1, &VBO);
+  glDeleteVertexArrays(1, &VAO);
+}
+
+void Model::enableAttribute(int location, int size, GLenum type, int offset) {
   glBindVertexArray(VAO);
 
-  glVertexAttribPointer(location, size, type, GL_FALSE, verticesSize / vertexCount * sizeof(float), (GLvoid*)(offset * sizeof(float)));
+  glVertexAttribPointer(location, size, type, GL_FALSE, 5 * sizeof(float), (GLvoid*)(offset * sizeof(float)));
   glEnableVertexAttribArray(location);
 
   glBindVertexArray(0);
 }
-void SingleModel::render(Camera* camera) {
-  tex.bind();
-  shader.use();
-  shader.setUniform("projection", camera->projection());
-  shader.setUniform("view", camera->view());
-  shader.setUniform("model", _transform);
 
-  glBindVertexArray(VAO);
-
-  glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
-
-  glBindVertexArray(0);
+int Model::vertexCount() {
+  return position.size();
 }
-void SingleModel::free() {
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
-  glDeleteVertexArrays(1, &VAO);
-}
-mat4 SingleModel::transform() {
+
+mat4 Model::transform() {
   return _transform;
 }
-mat4 SingleModel::transform(mat4 t) {
+mat4 Model::transform(mat4 t) {
   _transform = t;
 }

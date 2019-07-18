@@ -25,11 +25,8 @@ struct Material {
 };
 
 class RaymarchingShader: public ShaderProgram {
-protected:
-  void processFragmentShader();
 public:
   RaymarchingShader();
-  void fragmentFromFile(const char* fragmentFile);
   void setUniformStruct(string name, DirectionalLight l);
   void setUniformStruct(string name, PointLight l);
   void setUniformStruct(string name, Material l);
