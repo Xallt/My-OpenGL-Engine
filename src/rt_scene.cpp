@@ -23,7 +23,7 @@ void RaytracingScene::init() {
 
   glBindVertexArray(0);
 
-  shader = new ShaderProgram();
+  shader = new RaytracingShader();
   shader->vertexFromFile("shaders/raytracing/vert.glsl");
   shader->fragmentFromFile("shaders/raytracing/frag.glsl");
   bool s;
@@ -35,6 +35,13 @@ void RaytracingScene::render(Camera& camera) {
   shader->setUniform("camera.up", camera.up() * camera.cameraSize().y);
   shader->setUniform("camera.right", camera.right() * camera.cameraSize().x);
   shader->setUniform("camera.position", camera.position());
+
+  shader->addSphere({
+    vec3(0, 1, 0),
+    1,
+    vec3(1, 0, 0),
+    0.3, 0.7, 0.3, 20
+  });
 
   glBindVertexArray(VAO);
 

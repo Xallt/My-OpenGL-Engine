@@ -13,4 +13,6 @@ build/main.o: src/main.cpp src/../include/camera.h \
  src/../include/raymarching/../object.h \
  src/../include/raytracing/rt_scene.h \
  src/../include/raytracing/../object.h \
- src/../include/raytracing/../shader.h
+ src/../include/raytracing/../shader.h \
+ src/../include/raytracing/./rt_shader.h \
+ src/../include/raytracing/./../shader.h

@@ -8,28 +8,30 @@
 
 using namespace std;
 
-struct DirectionalLight {
-  vec3 direction, color;
-  float intensity;
-};
+namespace rm {
+  struct DirectionalLight {
+    vec3 direction, color;
+    float intensity;
+  };
 
-struct PointLight {
-  vec3 position, color;
-  float intensity;
-};
+  struct PointLight {
+    vec3 position, color;
+    float intensity;
+  };
 
-struct Material {
-	vec3 color;
-	float diffuse, ambient, specular;
-  float shininess;
-};
+  struct Material {
+    vec3 color;
+    float diffuse, ambient, specular;
+    float shininess;
+  };
+}
 
 class RaymarchingShader: public ShaderProgram {
 public:
   RaymarchingShader();
-  void setUniformStruct(string name, DirectionalLight l);
-  void setUniformStruct(string name, PointLight l);
-  void setUniformStruct(string name, Material l);
+  void setUniformStruct(string name, rm::DirectionalLight l);
+  void setUniformStruct(string name, rm::PointLight l);
+  void setUniformStruct(string name, rm::Material l);
 };
 
 #endif

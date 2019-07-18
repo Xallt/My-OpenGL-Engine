@@ -2,87 +2,90 @@
 
 in vec3 RayDirection;
 out vec4 color;
-
 struct Camera {
     vec3 direction, up, right;
     vec3 position;
 };
-
 uniform Camera camera;
 
 struct Sphere {
   vec3 position;
   float radius;
-  float shininess;
+  vec3 color;
+  float ambient, diffuse, specular, shininess;
 };
+struct DirectionalLight {
+  vec3 direction, color;
+  float intensity;
+};
+struct PointLight {
+  vec3 position, color;
+  float intensity;
+};
+uniform int SphereCount;
+uniform Sphere Spheres[20];
 
-#define SPHERES 1
-Sphere getSphere(int index) {
-  Sphere s;
-  s.position = vec3(0, 1, 0);
-  s.radius = 1;
-  s.shininess = 20;
-  return s;
-};
+uniform int DirLightCount;
+uniform DirectionalLight DirLights[20];
 
-struct Ray {
-  vec3 origin;
-  vec3 direction;
-};
+uniform int PointLightCount;
+uniform PointLight PointLights[20];
+
 struct RayHit {
   vec3 position;
   vec3 normal;
-  int type;
+  int type, index;
 };
 
-vec3 sphereComp(Ray ray, Sphere s) {
+vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
   return vec3(
-    dot(ray.direction, ray.direction),
-    2 * dot(ray.origin - s.position, ray.direction),
-    dot(ray.origin - s.position, ray.origin - s.position) - s.radius * s.radius
+    dot(rd, rd),
+    2 * dot(ro - s.position, rd),
+    dot(ro - s.position, ro - s.position) - s.radius * s.radius
   );
 }
 
 #define INF 100000
-RayHit castRay(Ray ray) {
+RayHit castRay(vec3 ro, vec3 rd) {
   RayHit hit;
   hit.normal = vec3(0);
-  hit.position = ray.origin + ray.direction * INF;
+  hit.position = ro + rd * INF;
   hit.type = -1;
-  if (ray.direction.y * ray.origin.y <= 0) {
+  if (rd.y * ro.y <= 0) {
     hit.type = 2;
-    hit.position = ray.origin - ray.origin.y / ray.direction.y * ray.direction;
+    hit.position = ro - ro.y / rd.y * rd;
     hit.normal = vec3(0, 1, 0);
   }
-  for (int i = 0; i < SPHERES; ++i) {
-    Sphere s = getSphere(i);
-    vec3 comp = sphereComp(ray, s);
+  for (int i = 0; i < SphereCount; ++i) {
+    Sphere s = Spheres[i];
+    vec3 comp = sphereComp(ro, rd, s);
     float d = comp.y * comp.y - 4 * comp.x * comp.z;
     if (!(d >= 0 && comp.y < 0 && comp.z > 0)) {
       continue;
     }
     float k = (-comp.y - sqrt(d)) / 2 * comp.x;
-    if (k < distance(ray.origin, hit.position)) {
-      hit.position = ray.origin + k * ray.direction;
+    if (k < distance(ro, hit.position)) {
+      hit.position = ro + k * rd;
       hit.type = 1;
       hit.normal = normalize(hit.position - s.position);
+      hit.index = i;
     }
   }
   return hit;
 }
 
 vec3 shadeRay(vec3 ro, vec3 rd) {
-  Ray ray;
-  ray.origin = ro;
-  ray.direction = normalize(rd);
-  RayHit hit = castRay(ray);
+  RayHit hit = castRay(ro, rd);
   if (hit.type == 2) {
     float size = 3;
     bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
     float k = float(x ^^ z);
     return vec3(k * .6 + .4);
   }
-  return hit.normal;
+  if (hit.type == 1) {
+    return Spheres[hit.index].color;
+  }
+  return vec3(0);
 }
 
 void main()

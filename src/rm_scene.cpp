@@ -38,19 +38,19 @@ void RaymarchingScene::render(Camera &camera) {
   shader->setUniform("camera.right", camera.right() * camera.cameraSize().x);
   shader->setUniform("camera.position", camera.position());
   shader->setUniform("Time", glfwGetTime());
-  
-  DirectionalLight l = {
-    vec3(-2.0),
-    vec3(1.0),
+
+  rm::DirectionalLight l = {
+    vec3(-2),
+    vec3(1),
     1.0
   };
-  Material m = {
-    vec3(0.0, 0.3, 1.0),
-    0.8, 0.3, 0.5,
-    100.0
-  };
+
   shader->setUniformStruct("light", l);
-  shader->setUniformStruct("mat", m);
+  shader->setUniformStruct("mat", {
+    vec3(0, 0.3, 1),
+    0.8, 0.3, 0.5,
+    100
+  });
 
   glBindVertexArray(VAO);
 

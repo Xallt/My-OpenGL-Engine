@@ -3,11 +3,12 @@
 
 #include "../object.h"
 #include "../shader.h"
+#include "./rt_shader.h"
 
 class RaytracingScene: public Object {
 private:
   uint VAO, VBO;
-  ShaderProgram* shader;
+  RaytracingShader* shader;
 public:
   void init();
   void update(float delta);
