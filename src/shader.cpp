@@ -96,6 +96,9 @@ void ShaderProgram::use() {
 void ShaderProgram::setUniform(string name, float x) {
   glUniform1f(loc(name), x);
 }
+void ShaderProgram::setUniform(string name, int x) {
+  glUniform1i(loc(name), x);
+}
 void ShaderProgram::setUniform(string name, vec4 v) {
   glUniform4f(loc(name), v.x, v.y, v.z, v.w);
 }

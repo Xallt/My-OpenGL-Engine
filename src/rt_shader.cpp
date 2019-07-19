@@ -9,6 +9,10 @@ void RaytracingShader::addSphere(rt::Sphere s) {
   setUniform(name + ".radius", s.radius);
   setUniform(name + ".shininess", s.shininess);
   setUniform(name + ".color", s.color);
+  setUniform(name + ".diffuse", s.diffuse);
+  setUniform(name + ".ambient", s.ambient);
+  setUniform(name + ".specular", s.specular);
+  setUniform(name + ".reflection", s.reflection);
   setUniform("SphereCount", ++sphereCount);
 }
 void RaytracingShader::addDirectionalLight(rt::DirectionalLight l) {

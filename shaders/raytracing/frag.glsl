@@ -12,7 +12,7 @@ struct Sphere {
   vec3 position;
   float radius;
   vec3 color;
-  float ambient, diffuse, specular, shininess;
+  float ambient, diffuse, specular, shininess, reflection;
 };
 struct DirectionalLight {
   vec3 direction, color;
@@ -30,6 +30,13 @@ uniform DirectionalLight DirLights[20];
 
 uniform int PointLightCount;
 uniform PointLight PointLights[20];
+
+vec3 lDirAt(DirectionalLight l, vec3 p) {
+  return normalize(l.direction);
+}
+vec3 lDirAt(PointLight l, vec3 p) {
+  return normalize(p - l.position);
+}
 
 struct RayHit {
   vec3 position;
@@ -74,18 +81,98 @@ RayHit castRay(vec3 ro, vec3 rd) {
   return hit;
 }
 
+struct ColorRes {
+  vec3 color, koef, spec;
+};
+ColorRes colorRes(vec3 color, vec3 k, vec3 spec) {
+  ColorRes cr;
+  cr.color = color;
+  cr.koef = k;
+  cr.spec = spec;
+  return cr;
+}
+
+ColorRes colorSphere(vec3 ro, vec3 rd, RayHit hit) {
+  Sphere s = Spheres[hit.index];
+  vec3 n = hit.normal, p = hit.position;
+  vec3 k = vec3(0), spec = vec3(0);
+  
+  // Ambient
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    k += l.color * l.intensity * s.ambient;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    k += l.color * l.intensity * s.ambient;
+  }
+
+  // Diffuse
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    k += l.color * max(dot(n, -lDirAt(l, p)), 0) * l.intensity * s.diffuse;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    k += l.color * max(dot(n, -lDirAt(l, p)), 0) * l.intensity * s.diffuse;
+  }
+
+  // Specular
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    spec += l.color * pow(max(dot(reflect(rd, n), -lDirAt(l, p)), 0), s.shininess) * l.intensity * s.specular;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    spec += l.color * pow(max(dot(reflect(rd, n), -lDirAt(l, p)), 0), s.shininess) * l.intensity * s.specular;
+  }
+  
+  return colorRes(s.color, k, spec);
+}
+ColorRes colorPlane(vec3 ro, vec3 rd, RayHit hit) {
+  float size = 3;
+  bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
+  float k = float(x ^^ z);
+  return colorRes(vec3(k * .6 + .4), vec3(1), vec3(0));
+}
+
+ColorRes colorBackground(vec3 ro, vec3 rd) {
+  return colorRes(vec3(0), vec3(1), vec3(0));
+}
+
+#define TRACE_DEPTH 5
 vec3 shadeRay(vec3 ro, vec3 rd) {
-  RayHit hit = castRay(ro, rd);
-  if (hit.type == 2) {
-    float size = 3;
-    bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
-    float k = float(x ^^ z);
-    return vec3(k * .6 + .4);
+  rd = normalize(rd);
+  vec3 r = vec3(1);
+  vec3 res = vec3(0);
+  int st = 0;
+  for (int i = 0; i < TRACE_DEPTH; ++i) {
+    st = i;
+    RayHit hit = castRay(ro, rd);
+    ColorRes col;
+    float refl;
+    if (hit.type == 2) { 
+      col = colorPlane(ro, rd, hit);
+      refl = 0;
+    }
+    if (hit.type == 1) {
+      col = colorSphere(ro, rd, hit);
+      refl = Spheres[hit.index].reflection;
+    }
+    if (hit.type == -1) {
+      col = colorBackground(ro, rd);
+      refl = 0;
+    }
+    if (i == TRACE_DEPTH - 1) {
+      refl = 0;
+    }
+    res += r * (col.koef * (col.color * (1 - refl)) + col.spec);
+    r *= refl * col.koef * col.color;
+
+    ro = hit.position;
+    rd = reflect(rd, hit.normal);
   }
-  if (hit.type == 1) {
-    return Spheres[hit.index].color;
-  }
-  return vec3(0);
+  return res;
 }
 
 void main()

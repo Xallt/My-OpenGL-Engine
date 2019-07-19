@@ -39,6 +39,7 @@ public:
   void use();
 
   void setUniform(string name, float x);
+  void setUniform(string name, int x);
   void setUniform(string name, vec4 v);
   void setUniform(string name, vec3 v);
   void setUniform(string name, vec2 v);

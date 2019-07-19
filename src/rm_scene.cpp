@@ -37,7 +37,7 @@ void RaymarchingScene::render(Camera &camera) {
   shader->setUniform("camera.up", camera.up() * camera.cameraSize().y);
   shader->setUniform("camera.right", camera.right() * camera.cameraSize().x);
   shader->setUniform("camera.position", camera.position());
-  shader->setUniform("Time", glfwGetTime());
+  shader->setUniform("Time", (float)glfwGetTime());
 
   rm::DirectionalLight l = {
     vec3(-2),

@@ -9,7 +9,7 @@ namespace rt {
     vec3 position;
     float radius;
     vec3 color;
-    float ambient, diffuse, specular, shininess;
+    float ambient, diffuse, specular, shininess, reflection;
   };
   struct DirectionalLight {
     vec3 direction, color;
@@ -21,9 +21,8 @@ namespace rt {
   };
 }
 class RaytracingShader: public ShaderProgram {
-private:
-  int sphereCount, dirLightCount, pointLightCount;
 public:
+  int sphereCount, dirLightCount, pointLightCount;
   RaytracingShader();
   void use();
   void addSphere(rt::Sphere s);
