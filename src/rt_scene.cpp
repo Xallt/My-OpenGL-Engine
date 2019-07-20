@@ -37,21 +37,21 @@ void RaytracingScene::render(Camera& camera) {
   shader->setUniform("camera.position", camera.position());
 
   shader->addSphere({
-    vec3(0, 1, 0),
+    vec3(0, 1, -2),
     1,
     vec3(0, 1, 0),
     0.2f, 0.7f, 0.4f, 50.0f, 0.2f
   });
 
   shader->addSphere({
-    vec3(5, 2, 0),
+    vec3(5, 4, 0),
     3,
     vec3(1, 0, 0),
     0.2f, 0.7f, 0.4f, 50.0f, 0.3f
   });
   shader->addSphere({
-    vec3(5, 2, 8),
-    3,
+    vec3(5, 3, -14),
+    11,
     vec3(0, 0, 1),
     0.2f, 0.7f, 0.4f, 50.0f, 0.5f
   });
@@ -59,13 +59,13 @@ void RaytracingScene::render(Camera& camera) {
   shader->addDirectionalLight({
     vec3(-1, -1, -1),
     vec3(1, 1, 1),
-    0.6
+    1
   });
-  shader->addPointLight({
-    vec3(-2, 3, -2),
-    vec3(1, 1, 1),
-    0.5
-  });
+  // shader->addPointLight({
+  //   vec3(-2, 3, -2),
+  //   vec3(1, 1, 1),
+  //   0.5
+  // });
 
   glBindVertexArray(VAO);
 
