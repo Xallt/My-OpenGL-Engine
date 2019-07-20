@@ -70,11 +70,11 @@ vec3 specularAt(vec3 ro, vec3 rd, RayHit hit, float shininess) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
     DirectionalLight l = DirLights[i];
-    k += l.color * pow(max(dot(hit.normal, -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
+    k += l.color * pow(max(dot(reflect(rd, hit.normal), -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
   }
   for (int i = 0; i < PointLightCount; ++i) {
     PointLight l = PointLights[i];
-    k += l.color * pow(max(dot(hit.normal, -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
+    k += l.color * pow(max(dot(reflect(rd, hit.normal), -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
   }
   return k;
 }
@@ -180,7 +180,10 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
       refl = 0;
     }
     res += r * (col.color * (1 - refl) + col.spec);
-    r *= refl * col.color;
+    if (refl == 0) {
+      break;
+    }
+    r *= refl;
 
     ro = hit.position;
     rd = reflect(rd, hit.normal);
