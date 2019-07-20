@@ -39,15 +39,21 @@ void RaytracingScene::render(Camera& camera) {
   shader->addSphere({
     vec3(0, 1, 0),
     1,
-    vec3(0, 1, 0),
-    0.1f, 0.7f, 0.3f, 20.0f, 0.9f
+    vec3(1, 1, 1),
+    0.8f, 0.7f, 0.4f, 50.0f, 0.9f
   });
 
   shader->addSphere({
     vec3(5, 2, 0),
     3,
-    vec3(1, 0, 0),
-    0.3f, 0.7f, 0.3f, 20.0f, 0.95f
+    vec3(1, 0, 1),
+    0.8f, 0.7f, 0.4f, 50.0f, 0.95f
+  });
+  shader->addSphere({
+    vec3(5, 2, 8),
+    3,
+    vec3(0, 0, 1),
+    0.8f, 0.7f, 0.4f, 50.0f, 0.95f
   });
   
   shader->addDirectionalLight({

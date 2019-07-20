@@ -37,12 +37,47 @@ vec3 lDirAt(DirectionalLight l, vec3 p) {
 vec3 lDirAt(PointLight l, vec3 p) {
   return normalize(p - l.position);
 }
-
 struct RayHit {
   vec3 position;
   vec3 normal;
   int type, index;
 };
+vec3 ambientAt(vec3 ro, vec3 rd, RayHit hit) {
+  vec3 k = vec3(0);
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    k += l.color * l.intensity;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    k += l.color * l.intensity;
+  }
+  return k;
+}
+vec3 diffuseAt(vec3 ro, vec3 rd, RayHit hit) {
+  vec3 k = vec3(0);
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    k += l.color * max(dot(hit.normal, -lDirAt(l, hit.position)), 0) * l.intensity;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    k += l.color * max(dot(hit.normal, -lDirAt(l, hit.position)), 0) * l.intensity;
+  }
+  return k;
+}
+vec3 specularAt(vec3 ro, vec3 rd, RayHit hit, float shininess) {
+  vec3 k = vec3(0);
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    k += l.color * pow(max(dot(hit.normal, -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
+  }
+  for (int i = 0; i < PointLightCount; ++i) {
+    PointLight l = PointLights[i];
+    k += l.color * pow(max(dot(hit.normal, -lDirAt(l, hit.position)), 0), shininess) * l.intensity;
+  }
+  return k;
+}
 
 vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
   return vec3(
@@ -82,12 +117,11 @@ RayHit castRay(vec3 ro, vec3 rd) {
 }
 
 struct ColorRes {
-  vec3 color, koef, spec;
+  vec3 color, spec;
 };
-ColorRes colorRes(vec3 color, vec3 k, vec3 spec) {
+ColorRes colorRes(vec3 color, vec3 spec) {
   ColorRes cr;
   cr.color = color;
-  cr.koef = k;
   cr.spec = spec;
   return cr;
 }
@@ -98,46 +132,25 @@ ColorRes colorSphere(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0), spec = vec3(0);
   
   // Ambient
-  for (int i = 0; i < DirLightCount; ++i) {
-    DirectionalLight l = DirLights[i];
-    k += l.color * l.intensity * s.ambient;
-  }
-  for (int i = 0; i < PointLightCount; ++i) {
-    PointLight l = PointLights[i];
-    k += l.color * l.intensity * s.ambient;
-  }
+  k += ambientAt(ro, rd, hit) * s.ambient;
 
   // Diffuse
-  for (int i = 0; i < DirLightCount; ++i) {
-    DirectionalLight l = DirLights[i];
-    k += l.color * max(dot(n, -lDirAt(l, p)), 0) * l.intensity * s.diffuse;
-  }
-  for (int i = 0; i < PointLightCount; ++i) {
-    PointLight l = PointLights[i];
-    k += l.color * max(dot(n, -lDirAt(l, p)), 0) * l.intensity * s.diffuse;
-  }
+  k += diffuseAt(ro, rd, hit) * s.diffuse;
 
   // Specular
-  for (int i = 0; i < DirLightCount; ++i) {
-    DirectionalLight l = DirLights[i];
-    spec += l.color * pow(max(dot(reflect(rd, n), -lDirAt(l, p)), 0), s.shininess) * l.intensity * s.specular;
-  }
-  for (int i = 0; i < PointLightCount; ++i) {
-    PointLight l = PointLights[i];
-    spec += l.color * pow(max(dot(reflect(rd, n), -lDirAt(l, p)), 0), s.shininess) * l.intensity * s.specular;
-  }
+  spec += specularAt(ro, rd, hit, s.shininess) * s.specular;
   
-  return colorRes(s.color, k, spec);
+  return colorRes(k * s.color, spec);
 }
 ColorRes colorPlane(vec3 ro, vec3 rd, RayHit hit) {
   float size = 3;
   bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
   float k = float(x ^^ z);
-  return colorRes(vec3(k * .6 + .4), vec3(1), vec3(0));
+  return colorRes(vec3(k * .6 + .4), vec3(0));
 }
 
 ColorRes colorBackground(vec3 ro, vec3 rd) {
-  return colorRes(vec3(0), vec3(1), vec3(0));
+  return colorRes(vec3(0), vec3(0));
 }
 
 #define TRACE_DEPTH 5
@@ -166,8 +179,8 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
     if (i == TRACE_DEPTH - 1) {
       refl = 0;
     }
-    res += r * (col.koef * (col.color * (1 - refl)) + col.spec);
-    r *= refl * col.koef * col.color;
+    res += r * (col.color * (1 - refl) + col.spec);
+    r *= refl * col.color;
 
     ro = hit.position;
     rd = reflect(rd, hit.normal);
