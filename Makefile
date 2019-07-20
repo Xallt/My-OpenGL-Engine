@@ -9,7 +9,7 @@ DEPENDS = $(patsubst build/%.o, .depend/%.d, $(OBJS))
 all: run
 clean:
 	rm -r .depend build
-$(PROG_NAME): $(OBJS)
+$(PROG_NAME): Makefile $(OBJS)
 	$(CC) $(OBJS) -o $(PROG_NAME) $(FLAGS)
 
 run: $(PROG_NAME)
