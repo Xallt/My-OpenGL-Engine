@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 RayDirection;
+in vec2 Position;
 out vec4 color;
 struct Camera {
     vec3 direction, up, right;
@@ -191,7 +191,17 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
   return res;
 }
 
+vec3 uvToRay(vec2 uv) {
+  return camera.direction + uv.x * camera.right + uv.y * camera.up;
+}
+
 void main()
 {
-  color = vec4(shadeRay(camera.position, RayDirection), 1);
+  vec2 off = vec2(1, -1) * 0.002;
+  color = vec4(
+    (shadeRay(camera.position, uvToRay(Position + off.xx)) + 
+     shadeRay(camera.position, uvToRay(Position + off.xy)) + 
+     shadeRay(camera.position, uvToRay(Position + off.yx)) + 
+     shadeRay(camera.position, uvToRay(Position + off.yy))) / 4, 
+  1);
 }
