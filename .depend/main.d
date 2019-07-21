@@ -1,18 +1,9 @@
-build/main.o: src/main.cpp src/../include/camera.h \
- src/../include/window.h src/../include/window.h \
- src/../include/rasterizing/rst_scene.h \
- src/../include/rasterizing/../object.h \
- src/../include/rasterizing/../camera.h \
- src/../include/rasterizing/rst_model.h \
- src/../include/rasterizing/../shader.h \
- src/../include/rasterizing/../texture.h \
- src/../include/raymarching/rm_scene.h \
- src/../include/raymarching/../camera.h \
- src/../include/raymarching/rm_shader.h \
- src/../include/raymarching/../shader.h \
- src/../include/raymarching/../object.h \
- src/../include/raytracing/rt_scene.h \
- src/../include/raytracing/../object.h \
- src/../include/raytracing/../shader.h \
- src/../include/raytracing/./rt_shader.h \
- src/../include/raytracing/./../shader.h
+build/main.o: src/main.cpp src/camera.h src/window.h \
+ src/rasterizing/rst_scene.h src/rasterizing/../object.h \
+ src/rasterizing/../camera.h src/rasterizing/rst_model.h \
+ src/rasterizing/../shader.h src/rasterizing/../texture.h \
+ src/raymarching/rm_scene.h src/raymarching/../camera.h \
+ src/raymarching/rm_shader.h src/raymarching/../shader.h \
+ src/raymarching/../object.h src/raytracing/rt_scene.h \
+ src/raytracing/../object.h src/raytracing/../shader.h \
+ src/raytracing/rt_shader.h

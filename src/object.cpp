@@ -1,4 +1,4 @@
-#include "../include/object.h"
+#include "object.h"
 
 void Object::init() {}
 void Object::render(Camera& camera) {}

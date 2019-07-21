@@ -1,1 +1,1 @@
-build/window.o: src/window.cpp src/../include/window.h
+build/window.o: src/window.cpp src/window.h

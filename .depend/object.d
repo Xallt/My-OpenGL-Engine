@@ -1,2 +1,1 @@
-build/object.o: src/object.cpp src/../include/object.h \
- src/../include/camera.h src/../include/window.h
+build/object.o: src/object.cpp src/object.h src/camera.h src/window.h

@@ -1,1 +1,1 @@
-build/texture.o: src/texture.cpp src/../include/texture.h
+build/texture.o: src/texture.cpp src/texture.h

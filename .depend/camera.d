@@ -1,2 +1,1 @@
-build/camera.o: src/camera.cpp src/../include/camera.h \
- src/../include/window.h
+build/camera.o: src/camera.cpp src/camera.h src/window.h

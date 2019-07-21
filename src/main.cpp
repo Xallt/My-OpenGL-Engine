@@ -7,11 +7,11 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "../include/camera.h"
-#include "../include/window.h"
-#include "../include/rasterizing/rst_scene.h"
-#include "../include/raymarching/rm_scene.h"
-#include "../include/raytracing/rt_scene.h"
+#include "camera.h"
+#include "window.h"
+#include "rasterizing/rst_scene.h"
+#include "raymarching/rm_scene.h"
+#include "raytracing/rt_scene.h"
 
 // This way it's more convenient
 #define int GLint

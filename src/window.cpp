@@ -1,4 +1,4 @@
-#include "../include/window.h"
+#include "window.h"
 
 Window::Window(const char* title, int w, int h): title(title), _width(w), _height(h) {}
 

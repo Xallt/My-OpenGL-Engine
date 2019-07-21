@@ -1,1 +1,1 @@
-build/shader.o: src/shader.cpp src/../include/shader.h
+build/shader.o: src/shader.cpp src/shader.h
