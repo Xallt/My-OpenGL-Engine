@@ -46,6 +46,11 @@ struct RayHit {
   vec3 normal;
   int type, index;
 };
+RayHit emptyHit() {
+  RayHit hit;
+  hit.type = -1;
+  return hit;
+}
 
 vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
   return vec3(
@@ -57,10 +62,7 @@ vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
 
 #define INF 100000
 RayHit castRay(vec3 ro, vec3 rd) {
-  RayHit hit;
-  hit.normal = vec3(0);
-  hit.position = ro + rd * INF;
-  hit.type = -1;
+  RayHit hit = emptyHit();
   if (rd.y * ro.y <= 0) {
     hit.type = 2;
     hit.position = ro - ro.y / rd.y * rd;
@@ -74,7 +76,7 @@ RayHit castRay(vec3 ro, vec3 rd) {
       continue;
     }
     float k = (-comp.y - sqrt(d)) / 2 * comp.x;
-    if (k < distance(ro, hit.position)) {
+    if (hit.type == -1 || k < distance(ro, hit.position)) {
       hit.position = ro + k * rd;
       hit.type = 1;
       hit.normal = normalize(hit.position - s.position);
@@ -213,7 +215,7 @@ vec3 uvToRay(vec2 uv) {
 
 void main()
 {
-  vec2 off = vec2(1, -1) * 0.002;
+  vec2 off = vec2(1, -1) * 0.001;
   color = vec4(
     (shadeRay(camera.position, uvToRay(Position + off.xx)) + 
      shadeRay(camera.position, uvToRay(Position + off.xy)) + 
