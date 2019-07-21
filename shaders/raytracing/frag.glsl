@@ -8,11 +8,19 @@ struct Camera {
 };
 uniform Camera camera;
 
+struct Material {
+  float ambient, diffuse, specular, shininess, reflection;
+};
+
+struct Plane {
+  vec3 normal, point;
+  Material mat;
+};
 struct Sphere {
   vec3 position;
   float radius;
   vec3 color;
-  float ambient, diffuse, specular, shininess, reflection;
+  Material mat;
 };
 struct DirectionalLight {
   vec3 direction, color;
@@ -22,6 +30,8 @@ struct PointLight {
   vec3 position, color;
   float intensity;
 };
+uniform Plane plane;
+
 uniform int SphereCount;
 uniform Sphere Spheres[20];
 
@@ -73,6 +83,7 @@ RayHit castRay(vec3 ro, vec3 rd) {
   }
   return hit;
 }
+#define EPS 0.00001
 vec3 ambientAt(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
@@ -89,13 +100,13 @@ vec3 diffuseAt(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
     DirectionalLight l = DirLights[i];
-    if (castRay(hit.position, normalize(-l.direction)).type == -1) {
+    if (castRay(hit.position + EPS * hit.normal, normalize(-l.direction)).type == -1) {
       k += l.color * max(dot(hit.normal, normalize(-l.direction)), 0) * l.intensity;
     }
   }
   for (int i = 0; i < PointLightCount; ++i) {
     PointLight l = PointLights[i];
-    if (castRay(hit.position, normalize(l.position - hit.position)).type == -1) {
+    if (castRay(hit.position + EPS * hit.normal, normalize(l.position - hit.position)).type == -1) {
       k += l.color * max(dot(hit.normal, normalize(l.position - hit.position)), 0) * l.intensity;
     }
   }
@@ -105,13 +116,13 @@ vec3 specularAt(vec3 ro, vec3 rd, RayHit hit, float shininess) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
     DirectionalLight l = DirLights[i];
-    if (castRay(hit.position, normalize(-l.direction)).type == -1) {
+    if (castRay(hit.position + EPS * hit.normal + EPS * hit.normal, normalize(-l.direction)).type == -1) {
       k += l.color * pow(max(dot(reflect(rd, hit.normal), normalize(-l.direction)), 0), shininess) * l.intensity;
     }
   }
   for (int i = 0; i < PointLightCount; ++i) {
     PointLight l = PointLights[i];
-    if (castRay(hit.position, normalize(l.position - hit.position)).type == -1) {
+    if (castRay(hit.position + EPS * hit.normal, normalize(l.position - hit.position)).type == -1) {
       k += l.color * pow(max(dot(reflect(rd, hit.normal), normalize(l.position - hit.position)), 0), shininess) * l.intensity;
     }
   }
@@ -133,13 +144,13 @@ ColorRes colorSphere(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0), spec = vec3(0);
   
   // Ambient
-  k += ambientAt(ro, rd, hit) * s.ambient;
+  k += ambientAt(ro, rd, hit) * s.mat.ambient;
 
   // Diffuse
-  k += diffuseAt(ro, rd, hit) * s.diffuse;
+  k += diffuseAt(ro, rd, hit) * s.mat.diffuse;
 
   // Specular
-  spec += specularAt(ro, rd, hit, s.shininess) * s.specular;
+  spec += specularAt(ro, rd, hit, s.mat.shininess) * s.mat.specular;
   
   return colorRes(k * s.color, spec);
 }
@@ -148,14 +159,17 @@ ColorRes colorPlane(vec3 ro, vec3 rd, RayHit hit) {
   bool x = mod(hit.position.x / size, 2) > 1, z = mod(hit.position.z / size, 2) > 1;
   float k = float(x ^^ z);
   vec3 col = vec3(k * .6 + .4);
-  return colorRes((ambientAt(ro, rd, hit) + diffuseAt(ro, rd, hit)) * col, specularAt(ro, rd, hit, 20));
+  return colorRes(
+    (diffuseAt(ro, rd, hit) * plane.mat.diffuse + ambientAt(ro, rd, hit) * plane.mat.ambient) * col, 
+    specularAt(ro, rd, hit, plane.mat.shininess) * plane.mat.specular
+  );
 }
 
 ColorRes colorBackground(vec3 ro, vec3 rd) {
   return colorRes(vec3(0), vec3(0));
 }
 
-#define TRACE_DEPTH 1
+#define TRACE_DEPTH 5
 vec3 shadeRay(vec3 ro, vec3 rd) {
   rd = normalize(rd);
   vec3 r = vec3(1);
@@ -168,11 +182,11 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
     float refl;
     if (hit.type == 2) { 
       col = colorPlane(ro, rd, hit);
-      refl = 0;
+      refl = plane.mat.reflection;
     }
     if (hit.type == 1) {
       col = colorSphere(ro, rd, hit);
-      refl = Spheres[hit.index].reflection;
+      refl = Spheres[hit.index].mat.reflection;
     }
     if (hit.type == -1) {
       col = colorBackground(ro, rd);
