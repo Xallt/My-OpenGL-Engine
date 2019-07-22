@@ -47,6 +47,7 @@ private:
   vec2 oldMousePos;
   void keyMovement(double delta);
   void mouseMovement(double delta);
+  static void windowFocusCallback(GLFWwindow* window, int focused);
 public:
   double speed = 1;
   CameraController(Camera *camera, Window* window);

@@ -47,14 +47,14 @@ void RaytracingScene::render(Camera& camera) {
     vec3(0, 1, -2),
     1,
     vec3(0, 1, 0),
-    {0.2f, 0.7f, 0.4f, 50.0f, 0.2f}
+    {0.2f, 0.7f, 0.4f, 50.0f, 0.2}
   });
 
   shader->addSphere({
     vec3(5, 4, 0),
     3,
     vec3(1, 0, 0),
-    {0.2f, 0.7f, 0.4f, 50.0f, 0.3f}
+    {0.2f, 0.7f, 0.4f, 50.0f, 0.3}
   });
   shader->addSphere({
     vec3(5, 3, -14),

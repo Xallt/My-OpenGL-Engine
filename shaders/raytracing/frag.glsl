@@ -168,7 +168,12 @@ ColorRes colorPlane(vec3 ro, vec3 rd, RayHit hit) {
 }
 
 ColorRes colorBackground(vec3 ro, vec3 rd) {
-  return colorRes(vec3(0), vec3(0));
+  vec3 light = vec3(0);
+  for (int i = 0; i < DirLightCount; ++i) {
+    DirectionalLight l = DirLights[i];
+    light += pow(max(dot(rd, normalize(-l.direction)), 0), 80) * l.intensity * l.color;
+  }
+  return colorRes(vec3(0.02734375, 0.1015625, 0.1484375), light);
 }
 
 #define TRACE_DEPTH 5

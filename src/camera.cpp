@@ -51,9 +51,20 @@ vec2 Camera::cameraSize() {
   return _cameraSize;
 }
 
+void CameraController::windowFocusCallback(GLFWwindow* window, int focused) {
+  if (focused == GLFW_TRUE) {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);  
+  }
+  else {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  }
+}
+
 CameraController::CameraController(Camera *camera, Window* window): camera(camera), window(window) {
   glfwSetInputMode(window->pointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetInputMode(window->pointer(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+  glfwSetWindowFocusCallback(window->pointer(), windowFocusCallback);
   oldMousePos = vec2((float)window->width() / 2, (float)window->height() / 2);
 }
 void CameraController::update(double delta) {

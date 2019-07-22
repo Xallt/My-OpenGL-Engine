@@ -28,6 +28,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
   }
 }
 
+
+
 void setCallbacks(Window &window) {
   window.setKeyCallback(keyCallback);
 }
@@ -42,6 +44,8 @@ void mainCycle(Window &window) {
 
   g_time = glfwGetTime();
   g_delta = 0;
+  float elapsed = 0;
+  int iter = 0;
   while (!window.shouldClose()) {
     glfwPollEvents();
     controller.update(g_delta);
@@ -55,8 +59,10 @@ void mainCycle(Window &window) {
 
     g_delta = glfwGetTime() - g_time;
     g_time = glfwGetTime();
+    elapsed += g_delta;
+    ++iter;
   }
-
+  cout << "FPS: ~" << (float)iter / elapsed << '\n';
   obj->free();
   glfwTerminate();
 }
@@ -65,7 +71,7 @@ int main () {
   bool success;
 
   // Context declaration
-  Window window("OpenGL newbie here", 800, 600);
+  Window window("OpenGL newbie here", 1200, 900);
   window.init(success);
   if (!success) {
     return -1;
