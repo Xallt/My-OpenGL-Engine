@@ -1,6 +1,6 @@
 PROG_NAME = main
 CC = g++
-FLAGS = -std=c++17 -lglfw3 -lGL -lglut -lGLEW -lm -ldl -lXinerama -lXrandr -lXi -lXcursor -lX11 -lXxf86vm -lpthread -lSOIL
+FLAGS = -std=c++17 -lglfw3 -lGL -lglut -lGLEW -lm -ldl -lXinerama -lXrandr -lXi -lXcursor -lX11 -lXxf86vm -lpthread -lSOIL -I ./src
 SOURCEDIR = src
 SOURCES = $(shell find $(SOURCEDIR) -name '*.cpp')
 OBJS = $(patsubst src/%.cpp, .obj/%.o, $(SOURCES))

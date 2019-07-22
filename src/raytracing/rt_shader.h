@@ -1,7 +1,7 @@
 #ifndef COMMON_RAYTRACING_SHADER
 #define COMMON_RAYTRACING_SHADER
 
-#include "../shader.h"
+#include "shader.h"
 #include <string>
 
 namespace rt {

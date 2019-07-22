@@ -1,9 +1,9 @@
 #ifndef COMMON_RAYTRACING_SCENE
 #define COMMON_RAYTRACING_SCENE
 
-#include "../object.h"
-#include "../shader.h"
-#include "rt_shader.h"
+#include "object.h"
+#include "shader.h"
+#include "raytracing/rt_shader.h"
 
 class RaytracingScene: public Object {
 private:
