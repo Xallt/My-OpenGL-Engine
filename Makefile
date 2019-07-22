@@ -3,13 +3,13 @@ CC = g++
 FLAGS = -std=c++17 -lglfw3 -lGL -lglut -lGLEW -lm -ldl -lXinerama -lXrandr -lXi -lXcursor -lX11 -lXxf86vm -lpthread -lSOIL
 SOURCEDIR = src
 SOURCES = $(shell find $(SOURCEDIR) -name '*.cpp')
-OBJS = $(patsubst src/%.cpp, build/%.o, $(SOURCES))
-DEPENDS = $(patsubst build/%.o, .depend/%.d, $(OBJS))
+OBJS = $(patsubst src/%.cpp, .obj/%.o, $(SOURCES))
+DEPENDS = $(patsubst .obj/%.o, .depend/%.d, $(OBJS))
 
 .PHONY: all clean
 all: run
 clean:
-	rm -r .depend/* build/*
+	rm -r .depend .obj
 $(PROG_NAME): Makefile $(OBJS)
 	$(CC) $(OBJS) -o $(PROG_NAME) $(FLAGS)
 
@@ -25,6 +25,6 @@ run: $(PROG_NAME)
 .depend/main.d: src/main.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(FLAGS) -MM -MT '$(patsubst src/%.cpp,build/%.o,$<)' $< -MF $@
-build/%.o: src/%.cpp .depend/%.d
+.obj/%.o: src/%.cpp .depend/%.d
 	mkdir -p $(dir $@)
 	$(CC) $(FLAGS) -c $< -o $@
