@@ -35,17 +35,12 @@ uniform Camera camera;
 uniform DirectionalLight light;
 uniform Material mat;
 
-// ==============
 // Utils
 float min3(vec3 p) {
 	return min(p.x, min(p.y, p.z));
 }
-// vec3 mod(vec3 p, float m) {
-// 	return (p % m + m) % m;
-// }
 
-// ==============
-// Distance functions
+// Distance functions & operations
 struct DE {
 	float dist;
 	float ambient;
@@ -156,6 +151,7 @@ DE DistanceField(vec3 p) {
 	return opUnion(obj, to_DE(p.y + 2));
 }
 
+// Getting the normal based on a gradient approximation
 vec3 getNormal(vec3 p) {
 	vec2 ff = vec2(0.000001, 0);
 	return normalize(vec3(
@@ -165,6 +161,7 @@ vec3 getNormal(vec3 p) {
 	));
 }
 
+// Result of the Ray Marching algorithm
 RayHit castRay(vec3 ro, vec3 rd) {
 	float t = 0, mind = DistanceField(ro).dist, d, amb = 0;
 	int steps = 0;
@@ -191,6 +188,7 @@ RayHit castRay(vec3 ro, vec3 rd) {
 	return hit;
 }
 
+// Computing Light, Fog and other effects for the result
 vec3 shadeObject(vec3 ro, vec3 rd, RayHit hit, DE de) {
 	vec3 p = ro + rd * hit.dist;
 	vec3 n = getNormal(p);
