@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 Position;
-out vec4 color;
+out vec4 glColor;
 struct Camera {
     vec3 direction, up, right;
     vec3 position;
@@ -52,6 +52,11 @@ RayHit emptyHit() {
   return hit;
 }
 
+#define INF 100000
+#define EPS 0.00001
+#define BACKGROUND vec3(0.02734375, 0.1015625, 0.1484375)
+
+// Returns 3 quadratic equation components for checking ray&sphere intersection
 vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
   return vec3(
     dot(rd, rd),
@@ -60,7 +65,7 @@ vec3 sphereComp(vec3 ro, vec3 rd, Sphere s) {
   );
 }
 
-#define INF 100000
+// Returns result of Ray Tracing in a struct
 RayHit castRay(vec3 ro, vec3 rd) {
   RayHit hit = emptyHit();
   if (rd.y * ro.y <= 0) {
@@ -85,7 +90,8 @@ RayHit castRay(vec3 ro, vec3 rd) {
   }
   return hit;
 }
-#define EPS 0.00001
+
+// Ambient light at a given ray hit
 vec3 ambientAt(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
@@ -98,6 +104,7 @@ vec3 ambientAt(vec3 ro, vec3 rd, RayHit hit) {
   }
   return k;
 }
+// Diffuse light at a given ray hit
 vec3 diffuseAt(vec3 ro, vec3 rd, RayHit hit) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
@@ -114,6 +121,7 @@ vec3 diffuseAt(vec3 ro, vec3 rd, RayHit hit) {
   }
   return k;
 }
+// Specular light at a given ray hit
 vec3 specularAt(vec3 ro, vec3 rd, RayHit hit, float shininess) {
   vec3 k = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
@@ -130,6 +138,8 @@ vec3 specularAt(vec3 ro, vec3 rd, RayHit hit, float shininess) {
   }
   return k;
 }
+
+// Struct representing the color of the material and color reflected from the scene
 struct ColorRes {
   vec3 color, spec;
 };
@@ -140,6 +150,7 @@ ColorRes colorRes(vec3 color, vec3 spec) {
   return cr;
 }
 
+// Coloring functions for every type of object (and the background)
 ColorRes colorSphere(vec3 ro, vec3 rd, RayHit hit) {
   Sphere s = Spheres[hit.index];
   vec3 n = hit.normal, p = hit.position;
@@ -166,22 +177,27 @@ ColorRes colorPlane(vec3 ro, vec3 rd, RayHit hit) {
     specularAt(ro, rd, hit, plane.mat.shininess) * plane.mat.specular
   );
 }
-
 ColorRes colorBackground(vec3 ro, vec3 rd) {
   vec3 light = vec3(0);
   for (int i = 0; i < DirLightCount; ++i) {
     DirectionalLight l = DirLights[i];
     light += pow(max(dot(rd, normalize(-l.direction)), 0), 80) * l.intensity * l.color;
   }
-  return colorRes(vec3(0.02734375, 0.1015625, 0.1484375), light);
+  return colorRes(BACKGROUND, light);
+}
+
+// Color correction (if needed)
+vec3 shadeRes(vec3 ro, vec3 rd, vec3 color, RayHit hit) {
+  return color;
 }
 
 #define TRACE_DEPTH 5
-vec3 shadeRay(vec3 ro, vec3 rd) {
+vec3 colorRay(vec3 ro, vec3 rd) {
   rd = normalize(rd);
   vec3 r = vec3(1);
   vec3 res = vec3(0);
   int st = 0;
+  RayHit first = castRay(ro, rd);
   for (int i = 0; i < TRACE_DEPTH; ++i) {
     st = i;
     RayHit hit = castRay(ro, rd);
@@ -202,7 +218,7 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
     if (i == TRACE_DEPTH - 1) {
       refl = 0;
     }
-    res += r * (col.color * (1 - refl) + col.spec);
+    res += r * (shadeRes(ro, rd, col.color, hit) * (1 - refl) + col.spec);
     if (refl == 0) {
       break;
     }
@@ -211,7 +227,12 @@ vec3 shadeRay(vec3 ro, vec3 rd) {
     ro = hit.position;
     rd = reflect(rd, hit.normal);
   }
-  return res;
+  if (first.type == -1) {
+    return res;
+  }
+  else {
+    return shadeRes(ro, rd, res, first);
+  }
 }
 
 vec3 uvToRay(vec2 uv) {
@@ -221,10 +242,11 @@ vec3 uvToRay(vec2 uv) {
 void main()
 {
   vec2 off = vec2(1, -1) * 0.001;
-  color = vec4(
-    (shadeRay(camera.position, uvToRay(Position + off.xx)) + 
-     shadeRay(camera.position, uvToRay(Position + off.xy)) + 
-     shadeRay(camera.position, uvToRay(Position + off.yx)) + 
-     shadeRay(camera.position, uvToRay(Position + off.yy))) / 4, 
+  // The simplest atialiasing out there
+  glColor = vec4(
+    (colorRay(camera.position, uvToRay(Position + off.xx)) + 
+     colorRay(camera.position, uvToRay(Position + off.xy)) + 
+     colorRay(camera.position, uvToRay(Position + off.yx)) + 
+     colorRay(camera.position, uvToRay(Position + off.yy))) / 4, 
   1);
 }
