@@ -29,12 +29,13 @@ void setCallbacks(Window &window) {
 
 void mainCycle(Window &window, Camera* cam, Object* obj) {
   CameraController controller(cam, &window);
+
+  obj->init();
+
   g_time = glfwGetTime();
   g_delta = 0;
   float elapsed = 0;
   int iter = 0;
-
-  obj->init();
   while (!window.shouldClose()) {
     glfwPollEvents();
     controller.update(g_delta);
