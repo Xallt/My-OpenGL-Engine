@@ -1,4 +1,8 @@
+# Ignoring project's output files
 main
 build
 .depend
 .obj
+
+# Ignoring VSCode project configurations
+.vscode
